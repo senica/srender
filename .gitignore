@@ -1,5 +1,7 @@
 # build with grunt
 index.html
+tests/*.js
+
 
 # misc
 *.sublime*
