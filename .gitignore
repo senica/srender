@@ -1,3 +1,7 @@
+# build with grunt
+index.html
+
+# misc
 *.sublime*
 npm-debug.log
 node_modules/*
