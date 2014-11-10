@@ -10,3 +10,5 @@ test 'Set IDs', (assert)->
 	$('.srender-me').srender(data)
 	assert.equal $('.srender-me').first().attr('id'), 1
 	assert.equal $('.srender-me').last().find('div:first').attr('id'), 1
+
+	assert.equal $('.srender-me').first().find('[s-first_name]').html(), 'Senica'

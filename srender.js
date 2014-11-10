@@ -3,8 +3,11 @@
     $.fn.srender = function(data, directives) {
       directives = $.extend({}, $.fn.srender.directives, directives);
       return this.each(function() {
-        var attribute, child, name, value, _i, _len, _name, _ref, _results;
-        console.log('loop', this);
+        var attribute, child, context, name, r, value, _i, _len, _name, _ref, _results;
+        context = data;
+        if (typeof this._s === 'undefined') {
+          this._s = {};
+        }
         _ref = this.attributes;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           attribute = _ref[_i];
@@ -14,22 +17,25 @@
             continue;
           }
           if (typeof directives[name] === 'function') {
-            directives[name].call(this, data, value);
+            r = directives[name].call(this, context, value);
+            if (Array.isArray(r) || typeof r === 'object' && r !== null) {
+              context = r;
+            }
             continue;
           }
           _name = name.replace(/^s-/, '');
-          if (typeof data[_name] !== 'undefined') {
-            if (data[_name] === null) {
+          if (typeof context[_name] !== 'undefined') {
+            if (context[_name] === null) {
               $(this).html('');
             } else {
-              $(this).text(data[_name]);
+              $(this).text(context[_name]);
             }
           }
         }
-        child = $(':first-child', this);
+        child = $('> :first-child', this);
         _results = [];
         while (child.length) {
-          child.srender(data, directives);
+          child.srender(context, directives);
           _results.push(child = child.next());
         }
         return _results;
@@ -52,8 +58,43 @@
             return '';
           }
         });
-        return $(this).attr('id', value);
-      }
+        $(this).attr('id', value);
+      },
+      's-repeat': (function() {
+        var style;
+        style = document.createElement('style');
+        style.type = 'text/css';
+        style.innerHTML = '.s-repeat-hidden { display:none; }';
+        $('head')[0].appendChild(style);
+        return function(context, value) {
+          var first, length, name, parent, siblings, _value;
+          name = value.replace(/({{[^}}]+}})/g, function(tempvar) {
+            return tempvar.replace('{{', '').replace('}}', '');
+          });
+          _value = context[name];
+          if (!Array.isArray(_value)) {
+            return;
+          }
+          parent = $(this).parent();
+          siblings = parent.find('[s-repeat="' + value + '"]');
+          first = siblings.first()[0];
+          length = Math.max(_value.length, 1);
+          if (first === this) {
+            $(first).removeClass('s-repeat-hidden');
+            while (siblings.length > length) {
+              siblings.last().remove();
+              siblings = parent.find('[s-repeat="' + value + '"]');
+            }
+          }
+          if (!_value.length) {
+            $(first).addClass('s-repeat-hidden');
+          }
+          if (siblings.length < length) {
+            siblings.first().clone().insertAfter(siblings.last());
+          }
+          return _value[siblings.index(this)];
+        };
+      })()
     };
   })(jQuery);
 
