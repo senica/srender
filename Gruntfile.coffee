@@ -8,6 +8,7 @@ module.exports = (grunt)->
 			build:
 				files: [
 					'srender.js': 'src/srender.coffee'
+					'tests/data.js': 'tests/data.coffee'
 					'tests/tests.js': 'tests/tests.coffee'
 				]
 
@@ -24,6 +25,7 @@ module.exports = (grunt)->
 						'src/qunit.js'
 						'src/qunit.css'
 						'srender.js'
+						'tests/data.js'
 						'tests/tests.js'
 					]
 
